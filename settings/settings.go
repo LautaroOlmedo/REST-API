@@ -9,6 +9,7 @@ import (
 var settingsFile []byte
 
 type DatabaseConfig struct {
+	//Engine   string `yaml:"engine"`
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`

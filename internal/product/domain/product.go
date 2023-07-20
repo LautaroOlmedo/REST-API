@@ -1,8 +1,8 @@
-package entity
+package domain
 
 import "github.com/google/uuid"
 
-type Item struct {
+type Product struct {
 	ID   uuid.UUID
 	Name string
 }

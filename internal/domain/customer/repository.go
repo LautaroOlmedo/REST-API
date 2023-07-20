@@ -1,3 +1,0 @@
-package customer
-
-var ()
