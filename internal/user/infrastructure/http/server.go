@@ -28,7 +28,8 @@ func StartServer() {
 	userService := application.NewUserService(postgresRepo)
 
 	userHandler := NewUserHandler(userService)
-	http.HandleFunc("/users", userHandler.CreateUserHandler)
+	http.HandleFunc("/usersPOST", userHandler.CreateUserHandler)
+	//http.HandleFunc("/usersGET", userHandler.CreateUserHandler)
 
 	log.Println("Server listening on :8080")
 	err = http.ListenAndServe(":8080", nil)
