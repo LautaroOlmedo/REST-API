@@ -57,7 +57,7 @@ func TestUserService_SaveUser(t *testing.T) {
 			t.Parallel()
 			err := s.SaveUser(myContext, tc.name, tc.email, tc.password)
 			if !errors.Is(err, tc.expectedError) {
-
+				t.Errorf("Expected %v, got %v", tc.expectedError, err)
 			}
 
 		})
