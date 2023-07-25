@@ -4,14 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"rest-api/database"
 	"rest-api/internal/user/application"
+	"rest-api/internal/user/infrastructure/database"
 	"rest-api/internal/user/infrastructure/mariadb"
 	"rest-api/settings"
 )
 
 func StartServer() {
-
 	myContext := context.Background()
 
 	myConfig, err := settings.New()
@@ -27,13 +26,15 @@ func StartServer() {
 	postgresRepo := mariadb.NewPostgresRepository(myConnection)
 	userService := application.NewUserService(postgresRepo)
 
-	userHandler := NewUserHandler(userService)
-	http.HandleFunc("/usersPOST", userHandler.CreateUserHandler)
-	//http.HandleFunc("/usersGET", userHandler.CreateUserHandler)
+	userHandler := NewHandler(userService)
+
+	router := NewRouter()
+	router.Handle("/users", http.HandlerFunc(userHandler.CreateUser))
 
 	log.Println("Server listening on :8080")
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
+
 }
