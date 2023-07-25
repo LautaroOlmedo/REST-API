@@ -3,6 +3,7 @@ package mariadb
 import (
 	"context"
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/jmoiron/sqlx"
@@ -13,7 +14,8 @@ import (
 const (
 	queryInsertUser = `
          INSERT INTO users (name, email, password)
-         VALUES (?, ?, ?);`
+         VALUES (?, ?, ?);
+`
 
 	queryGetAllUsers = `
          SELECT * FROM users;`
@@ -36,7 +38,7 @@ func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
 func (repo *PostgresRepository) SaveUser(ctx context.Context, name, email, password string) error {
 	log.Printf("name: %s", name)
 	_, err := repo.db.ExecContext(ctx, queryInsertUser, name, email, password)
-	// defer repo.db.Close()
+	fmt.Println(err)
 	return err
 }
 
