@@ -3,18 +3,26 @@ package application
 import (
 	"context"
 	"errors"
+	"os"
 	"rest-api/internal/user/domain"
 	"testing"
 )
+
+var s domain.Repository
+
+func TestMain(m *testing.M) {
+	repo := &RepositoryMocked{}
+	s = NewUserService(repo)
+
+	code := m.Run()
+	os.Exit(code)
+}
 
 func TestUserService_GetAllUsers(t *testing.T) {
 
 }
 
-func TestUserService_SaveUser(t *testing.T) {
-
-	repo := &RepositoryMocked{}
-	var s domain.Repository = NewUserService(repo)
+func TestUserService_CreateUser(t *testing.T) {
 
 	myContext := context.Background()
 
@@ -55,11 +63,45 @@ func TestUserService_SaveUser(t *testing.T) {
 		tc := testCases[i]
 		t.Run(tc.test, func(t *testing.T) {
 			t.Parallel()
-			err := s.SaveUser(myContext, tc.name, tc.email, tc.password)
+			err := s.CreateUser(myContext, tc.name, tc.email, tc.password)
 			if !errors.Is(err, tc.expectedError) {
 				t.Errorf("Expected %v, got %v", tc.expectedError, err)
 			}
 
+		})
+	}
+}
+
+func TestUserService_GetUserByID(t *testing.T) {
+	myContext := context.Background()
+
+	type testCase struct {
+		test          string
+		id            int
+		expectedError error
+	}
+
+	testCases := []testCase{
+		{
+			test:          "valid id",
+			id:            1,
+			expectedError: nil,
+		},
+		{
+			test:          "invalid id",
+			id:            -4,
+			expectedError: InvalidID,
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.test, func(t *testing.T) {
+			t.Parallel()
+			_, err := s.GetUserByID(myContext, tc.id)
+			if !errors.Is(err, tc.expectedError) {
+				t.Errorf("Expected %v, got %v", tc.expectedError, err)
+			}
 		})
 	}
 }

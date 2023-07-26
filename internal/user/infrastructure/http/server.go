@@ -30,6 +30,7 @@ func StartServer() {
 
 	router := NewRouter()
 	router.Handle("/users", http.HandlerFunc(userHandler.CreateUser))
+	router.Handle("/user/:id", http.HandlerFunc(userHandler.GetUserByID))
 
 	log.Println("Server listening on :8080")
 	err = http.ListenAndServe(":8080", router)
