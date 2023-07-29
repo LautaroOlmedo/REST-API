@@ -11,7 +11,7 @@ import (
 var s domain.Repository
 
 func TestMain(m *testing.M) {
-	repo := &RepositoryMocked{}
+	repo := &domain.MockRepository{}
 	s = NewUserService(repo)
 
 	code := m.Run()
