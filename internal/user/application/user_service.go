@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"github.com/asaskevich/govalidator"
 	"rest-api/internal/user/domain"
 	"rest-api/internal/user/domain/model"
 )
@@ -37,7 +38,7 @@ func (userService *UserService) GetByID(ctx context.Context, id int) (*model.Use
 	user, err := userService.userRepository.GetUserByID(ctx, id)
 
 	if err != nil {
-		return nil, err
+		return nil, UserNotFound
 	}
 
 	return &model.User{
@@ -70,7 +71,7 @@ func (userService *UserService) RegisterUser(ctx context.Context, name, email, p
 
 	if name == "" {
 		return InvalidName
-	} else if email == "" {
+	} else if email == "" || !govalidator.IsEmail(email) {
 		return InvalidEmail
 	} else if password == "" {
 		return InvalidPassword
