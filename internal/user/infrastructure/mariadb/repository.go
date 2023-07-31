@@ -16,8 +16,8 @@ const (
          INSERT INTO users (name, email, password)
          VALUES (?, ?, ?);`
 
-	queryGetAllUsers = `
-         SELECT * FROM users;`
+	queryGetUserByID = `
+         SELECT id, name, email, password FROM users WHERE id = ?;`
 
 	queryGetUSer = `
          SELECT id, name, email FROM users WHERE id = ?;`
@@ -69,7 +69,15 @@ func (repo *PostgresRepository) GetUserByID(ctx context.Context, userID int) (*d
 }
 
 func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, userEmail string) (*domain.User, error) {
-	return nil, nil
+	var u = domain.User{}
+	err := repo.db.GetContext(ctx, &u, queryGetUSer, userEmail)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.UserNotFound
+		}
+		return nil, domain.FailedToGetUser
+	}
+	return &u, nil
 }
 
 func (repo *PostgresRepository) CreateUser(ctx context.Context, name, email, password string) error {

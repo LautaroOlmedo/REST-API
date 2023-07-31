@@ -31,6 +31,9 @@ func NewUserService(userRepository domain.Repository) *UserService {
 //}
 
 func (userService *UserService) GetByID(ctx context.Context, id int) (*model.User, error) {
+	if id < 1 {
+		return nil, InvalidID
+	}
 	user, err := userService.userRepository.GetUserByID(ctx, id)
 
 	if err != nil {
@@ -65,6 +68,13 @@ func (userService *UserService) LoginUser(ctx context.Context, email, password s
 
 func (userService *UserService) RegisterUser(ctx context.Context, name, email, password string) error {
 
+	if name == "" {
+		return InvalidName
+	} else if email == "" {
+		return InvalidEmail
+	} else if password == "" {
+		return InvalidPassword
+	}
 	user, err := userService.userRepository.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err

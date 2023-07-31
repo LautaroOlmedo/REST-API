@@ -8,10 +8,12 @@ import (
 
 var (
 	InvalidParameter = errors.New("name, email and password are required")
+	InvalidName      = errors.New("invalid name format")
 	InvalidEmail     = errors.New("invalid email format")
 	InvalidID        = errors.New("invalid ID")
 	InvalidPassword  = errors.New("invalid password")
 	UserAlreadyExist = errors.New("user already exists")
+	UserNotFound     = errors.New("user not found")
 )
 
 // Service is the business logic of the application

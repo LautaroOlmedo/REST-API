@@ -41,7 +41,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userService.CreateUser(ctx, userParams.Name, userParams.Email, userParams.Password)
+	err = h.userService.RegisterUser(ctx, userParams.Name, userParams.Email, userParams.Password)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
@@ -60,7 +60,7 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.GetUserByID(ctx, userID)
+	user, err := h.userService.GetByID(ctx, userID)
 	if err != nil {
 
 		http.Error(w, fmt.Sprintf("Failed to get user: %v", err), http.StatusInternalServerError)

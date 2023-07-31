@@ -1,0 +1,88 @@
+package application
+
+import (
+	"context"
+	"errors"
+	"github.com/stretchr/testify/mock"
+	"os"
+	"rest-api/internal/user/domain"
+	"testing"
+)
+
+var userRepo *domain.MockRepository
+
+func TestMain(m *testing.M) {
+	userRepo = &domain.MockRepository{}
+	userRepo.On("GetUserByEmail", mock.Anything, "lautaroolmedo77@gmail.com").Return(nil, nil)
+	userRepo.On("GetUserByEmail", mock.Anything, "javierMiner@gmail.com").Return(&domain.User{Email: "javierMiner@gmail.com"}, nil)
+	userRepo.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	code := m.Run()
+	os.Exit(code)
+}
+
+func TestUserService_RegisterUser(t *testing.T) {
+	myContext := context.Background()
+
+	type testCase struct {
+		test          string
+		name          string
+		email         string
+		password      string
+		expectedError error
+	}
+
+	testCases := []testCase{
+		{
+			test:          "valid user",
+			name:          "Lautaro",
+			email:         "lautaroolmedo77@gmail.com",
+			password:      "1234",
+			expectedError: nil,
+		},
+		{
+			test:          "invalid parameter (NAME)",
+			name:          "",
+			email:         "lautaroolmedo77@gmail.com",
+			password:      "1234",
+			expectedError: InvalidName,
+		},
+		{
+			test:          "invalid parameter (EMAIL)",
+			name:          "Lautaro",
+			email:         "",
+			password:      "1234",
+			expectedError: InvalidEmail,
+		},
+		{
+			test:          "ERROR. (user already exist (EMAIL))",
+			name:          "Javier",
+			email:         "javierMiner@gmail.com",
+			password:      "1234",
+			expectedError: UserAlreadyExist,
+		},
+		{
+			test:          "invalid parameter (PASSWORD)",
+			name:          "Lautaro",
+			email:         "lautaroolmedo77@gmail.com",
+			password:      "",
+			expectedError: InvalidPassword,
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.test, func(t *testing.T) {
+			t.Parallel()
+			userRepo.Mock.Test(t)
+
+			serv := NewUserService(userRepo)
+
+			err := serv.RegisterUser(myContext, tc.name, tc.email, tc.password)
+			if !errors.Is(err, tc.expectedError) {
+				t.Errorf("Expected %v, got %v", tc.expectedError, err)
+			}
+
+		})
+	}
+}
