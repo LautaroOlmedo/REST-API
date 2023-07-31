@@ -27,25 +27,25 @@ func (_m *MockRepository) CreateUser(ctx context.Context, name string, email str
 	return r0
 }
 
-// GetAllUsers provides a mock function with given fields: ctx
-func (_m *MockRepository) GetAllUsers(ctx context.Context) (map[int]User, error) {
-	ret := _m.Called(ctx)
+// GetUserByEmail provides a mock function with given fields: ctx, userEmail
+func (_m *MockRepository) GetUserByEmail(ctx context.Context, userEmail string) (*User, error) {
+	ret := _m.Called(ctx, userEmail)
 
-	var r0 map[int]User
+	var r0 *User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (map[int]User, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*User, error)); ok {
+		return rf(ctx, userEmail)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) map[int]User); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *User); ok {
+		r0 = rf(ctx, userEmail)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[int]User)
+			r0 = ret.Get(0).(*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userEmail)
 	} else {
 		r1 = ret.Error(1)
 	}

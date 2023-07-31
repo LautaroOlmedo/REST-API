@@ -2,16 +2,8 @@ package application
 
 import (
 	"context"
-	"errors"
-	"net/mail"
 	"rest-api/internal/user/domain"
-)
-
-var (
-	InvalidParameter  = errors.New("name, email and password are required")
-	InvalidEmail      = errors.New("invalid email format")
-	InvalidID         = errors.New("invalid ID")
-	UserAlrreadyExist = errors.New("user already exist")
+	"rest-api/internal/user/domain/model"
 )
 
 type UserService struct {
@@ -22,24 +14,66 @@ func NewUserService(userRepository domain.Repository) *UserService {
 	return &UserService{userRepository: userRepository}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, name, email, password string) error {
-	if name == "" || email == "" || password == "" {
-		return InvalidParameter
-	}
-	_, err := mail.ParseAddress(email)
+//func (userService *UserService) GetAll(ctx context.Context) (map[int]*model.User, error) {
+//	usersMap := make(map[int]*model.User)
+//	users, err := userService.userRepository.GetAllUsers(ctx)
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//	return nil, nil
+//
+//	for i := 0; i < len(users); i++ {
+//		usersMap[users[i].ID] = &model.User{ID: users[i].ID, Name: users[i].Name, Email: users[i].Email}
+//	}
+//
+//	return usersMap, nil
+//}
+
+func (userService *UserService) GetByID(ctx context.Context, id int) (*model.User, error) {
+	user, err := userService.userRepository.GetUserByID(ctx, id)
+
 	if err != nil {
-		return InvalidEmail
+		return nil, err
 	}
-	return s.userRepository.CreateUser(ctx, name, email, password)
+
+	return &model.User{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+	}, nil
 }
 
-func (s *UserService) GetAllUsers(ctx context.Context) (map[int]domain.User, error) {
-	return s.userRepository.GetAllUsers(ctx)
+func (userService *UserService) LoginUser(ctx context.Context, email, password string) (*model.User, error) {
+	user, err := userService.userRepository.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Password != password {
+		return nil, InvalidPassword
+	}
+
+	// ---> DECRYPT PASSWORD
+
+	return &model.User{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+	}, nil
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, userID int) (*domain.User, error) {
-	if userID < 1 {
-		return nil, InvalidID
+func (userService *UserService) RegisterUser(ctx context.Context, name, email, password string) error {
+
+	user, err := userService.userRepository.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
 	}
-	return s.userRepository.GetUserByID(ctx, userID)
+	if user != nil {
+		return UserAlreadyExist
+	}
+
+	// ---> HASH PASSWORD
+
+	return userService.userRepository.CreateUser(ctx, name, email, password)
 }

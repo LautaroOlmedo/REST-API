@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"rest-api/internal/database"
 	"rest-api/internal/user/application"
-	"rest-api/internal/user/infrastructure/database"
 	"rest-api/internal/user/infrastructure/mariadb"
 	"rest-api/settings"
 )
