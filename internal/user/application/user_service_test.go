@@ -15,11 +15,11 @@ func TestMain(m *testing.M) {
 	userRepo = &domain.MockRepository{}
 	userRepo.On("GetUserByEmail", mock.Anything, "lautaroolmedo77@gmail.com").Return(nil, nil)
 	userRepo.On("GetUserByEmail", mock.Anything, "javierMiner@gmail.com").Return(&domain.User{Email: "javierMiner@gmail.com"}, nil)
-	userRepo.On("GetUserByEmail", mock.Anything, "joelquinteros99gmail.com").Return(nil, InvalidEmail)
+	//userRepo.On("GetUserByEmail", mock.Anything, "joelquinteros99gmail.com").Return(nil, InvalidEmail)
 	userRepo.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	userRepo.On("GetUserByID", mock.Anything, 1).Return(&domain.User{ID: 1}, nil)
-	userRepo.On("GetUserByID", mock.Anything, 3).Return(nil, UserNotFound)
+	userRepo.On("GetUserByID", mock.Anything, 3).Return(nil, UnexpectedError)
 
 	code := m.Run()
 	os.Exit(code)
@@ -116,7 +116,7 @@ func TestUserService_GetByID(t *testing.T) {
 		{
 			test:          "ERROR. user not found",
 			id:            3,
-			expectedError: UserNotFound,
+			expectedError: UnexpectedError,
 		},
 		{
 			test:          "ERROR. invalid id",

@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"rest-api/database"
@@ -12,6 +13,8 @@ import (
 
 func StartServer() {
 	myContext := context.Background()
+	var userService = &application.UserService{}
+	var mariaDBRepo = &mariadb.MariaDBRepository{}
 
 	myConfig, err := settings.New()
 	if err != nil {
@@ -22,9 +25,18 @@ func StartServer() {
 	if err != nil {
 		log.Panicf("failed to start database %s", err)
 	}
+	switch myConfig.DB.Engine {
+	case "mariadb":
+		mariaDBRepo = mariadb.NewMariaDBRepository(myConnection)
+		userService = application.NewUserService(mariaDBRepo)
+		fmt.Println("mariadb is connected")
 
-	postgresRepo := mariadb.NewPostgresRepository(myConnection)
-	userService := application.NewUserService(postgresRepo)
+	case "postgres":
+		fmt.Println("postgresSQL is connected")
+
+	default:
+		panic("not engine case contemplated")
+	}
 
 	userHandler := NewHandler(userService)
 

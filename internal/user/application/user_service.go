@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"rest-api/internal/user/domain"
 	"rest-api/internal/user/domain/model"
@@ -9,6 +10,7 @@ import (
 
 type UserService struct {
 	userRepository domain.Repository
+	//messageBus     *messagebus.MessageBus
 }
 
 func NewUserService(userRepository domain.Repository) *UserService {
@@ -38,7 +40,8 @@ func (userService *UserService) GetByID(ctx context.Context, id int) (*model.Use
 	user, err := userService.userRepository.GetUserByID(ctx, id)
 
 	if err != nil {
-		return nil, UserNotFound
+		fmt.Println("ERROR:", err)
+		return nil, err
 	}
 
 	return &model.User{
@@ -54,11 +57,11 @@ func (userService *UserService) LoginUser(ctx context.Context, email, password s
 		return nil, err
 	}
 
+	// ---> DECRYPT PASSWORD
+
 	if user.Password != password {
 		return nil, InvalidPassword
 	}
-
-	// ---> DECRYPT PASSWORD
 
 	return &model.User{
 		ID:    user.ID,

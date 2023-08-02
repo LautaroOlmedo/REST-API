@@ -10,16 +10,6 @@ create table users
     primary key (id)
 );
 
-create table products
-(
-    id           int         not null auto_increment,
-    product_name varchar(50) not null,
-    description  varchar(50) not null,
-    price        float       not null,
-    created_by   id          not null,
-    primary key (id),
-    foreign key (created_by) references users (id)
-);
 
 create table roles(
     id int not null auto_increment,

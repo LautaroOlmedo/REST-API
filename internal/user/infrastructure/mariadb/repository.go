@@ -23,17 +23,17 @@ const (
          SELECT id, name, email FROM users WHERE id = ?;`
 )
 
-type PostgresRepository struct {
+type MariaDBRepository struct {
 	db *sqlx.DB
 }
 
-func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
-	return &PostgresRepository{
+func NewMariaDBRepository(db *sqlx.DB) *MariaDBRepository {
+	return &MariaDBRepository{
 		db: db,
 	}
 }
 
-//func (repo *PostgresRepository) GetAllUsers(ctx context.Context) (map[int]domain.User, error) {
+//func (repo *MariaDBRepository) GetAllUsers(ctx context.Context) (map[int]domain.User, error) {
 //	resp, err := repo.db.QueryContext(ctx, queryGetAllUsers)
 //	if err != nil {
 //		return nil, domain.UserNotFound
@@ -56,7 +56,7 @@ func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
 //	return users, nil
 //}
 
-func (repo *PostgresRepository) GetUserByID(ctx context.Context, userID int) (*domain.User, error) {
+func (repo *MariaDBRepository) GetUserByID(ctx context.Context, userID int) (*domain.User, error) {
 	var u = domain.User{}
 	err := repo.db.QueryRowContext(ctx, queryGetUSer, userID).Scan(&u.ID, &u.Name, &u.Email)
 	if err != nil {
@@ -68,7 +68,7 @@ func (repo *PostgresRepository) GetUserByID(ctx context.Context, userID int) (*d
 	return &u, nil
 }
 
-func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, userEmail string) (*domain.User, error) {
+func (repo *MariaDBRepository) GetUserByEmail(ctx context.Context, userEmail string) (*domain.User, error) {
 	var u = domain.User{}
 	err := repo.db.GetContext(ctx, &u, queryGetUSer, userEmail)
 	if err != nil {
@@ -80,8 +80,8 @@ func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, userEmail st
 	return &u, nil
 }
 
-func (repo *PostgresRepository) CreateUser(ctx context.Context, name, email, password string) error {
+func (repo *MariaDBRepository) CreateUser(ctx context.Context, name, email, password string) error {
 	_, err := repo.db.ExecContext(ctx, queryInsertUser, name, email, password)
-	fmt.Println(err)
+	fmt.Println("ERROR IN MARIADB REPOSITORY", err)
 	return err
 }
