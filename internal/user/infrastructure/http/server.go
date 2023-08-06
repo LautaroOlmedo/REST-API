@@ -38,14 +38,12 @@ func StartServer() {
 		panic("not engine case contemplated")
 	}
 
-	userHandler := NewHandler(userService)
-
-	router := NewRouter()
-	router.Handle("/users", http.HandlerFunc(userHandler.CreateUser))
-	router.Handle("/user/:id", http.HandlerFunc(userHandler.GetUserByID))
+	mux := http.NewServeMux()
+	userH := &userHandler{userService}
+	mux.Handle("/users", userH)
 
 	log.Println("Server listening on :8080")
-	err = http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8080", mux)
 	if err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
