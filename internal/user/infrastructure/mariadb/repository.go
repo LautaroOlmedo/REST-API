@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/jmoiron/sqlx"
+	"rest-api/internal/user/application"
 	"rest-api/internal/user/domain"
 )
 
@@ -57,15 +57,15 @@ func NewMariaDBRepository(db *sqlx.DB) *MariaDBRepository {
 //}
 
 func (repo *MariaDBRepository) GetUserByID(ctx context.Context, userID int) (*domain.User, error) {
-	var u = domain.User{}
-	err := repo.db.QueryRowContext(ctx, queryGetUSer, userID).Scan(&u.ID, &u.Name, &u.Email)
+	var u = &domain.User{}
+	err := repo.db.QueryRowContext(ctx, queryGetUSer, userID).Scan(u.ID, u.Name, u.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.UserNotFound
+			return nil, application.UserNotFound
 		}
-		return nil, domain.FailedToGetUser
+		return nil, application.InternalServerError
 	}
-	return &u, nil
+	return u, nil
 }
 
 func (repo *MariaDBRepository) GetUserByEmail(ctx context.Context, userEmail string) (*domain.User, error) {
@@ -73,15 +73,27 @@ func (repo *MariaDBRepository) GetUserByEmail(ctx context.Context, userEmail str
 	err := repo.db.GetContext(ctx, &u, queryGetUSer, userEmail)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.UserNotFound
+			return nil, application.UserNotFound
 		}
-		return nil, domain.FailedToGetUser
+		return nil, application.InternalServerError
 	}
 	return &u, nil
 }
 
 func (repo *MariaDBRepository) CreateUser(ctx context.Context, name, email, password string) error {
-	_, err := repo.db.ExecContext(ctx, queryInsertUser, name, email, password)
-	fmt.Println("ERROR IN MARIADB REPOSITORY", err)
-	return err
+	tx, err := repo.db.Begin()
+	if err != nil {
+		return application.InternalServerError
+	}
+	_, err = tx.ExecContext(ctx, queryInsertUser, name, email, password)
+	if err != nil {
+		tx.Rollback()
+		return application.InternalServerError
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return application.InternalServerError
+	}
+	return nil
 }

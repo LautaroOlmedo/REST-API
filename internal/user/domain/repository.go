@@ -2,13 +2,6 @@ package domain
 
 import (
 	"context"
-	"errors"
-)
-
-var (
-	UserNotFound      = errors.New("cannot find user")
-	FailedToGetUser   = errors.New("unexpected error")
-	UserAlreadyExists = errors.New("user already exists")
 )
 
 // Repository is the interface that wraps the basic CRUD operations

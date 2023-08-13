@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	"rest-api/internal/user/domain"
@@ -80,9 +81,10 @@ func (userService *UserService) RegisterUser(ctx context.Context, name, email, p
 		return InvalidPassword
 	}
 	user, err := userService.userRepository.GetUserByEmail(ctx, email)
-	if err != nil {
+	if err != nil && !errors.Is(err, UserNotFound) {
 		return err
 	}
+	fmt.Println(user)
 	if user != nil {
 		return UserAlreadyExist
 	}
