@@ -16,8 +16,8 @@ const (
          INSERT INTO users (name, email, password)
          VALUES (?, ?, ?);`
 
-	queryGetUserByID = `
-         SELECT id, name, email, password FROM users WHERE id = ?;`
+	queryGetUserByEmail = `
+         SELECT id, name, email, password FROM users WHERE email = ?;`
 
 	queryGetUSer = `
          SELECT id, name, email FROM users WHERE id = ?;`
@@ -70,13 +70,14 @@ func (repo *MariaDBRepository) GetUserByID(ctx context.Context, userID int) (*do
 
 func (repo *MariaDBRepository) GetUserByEmail(ctx context.Context, userEmail string) (*domain.User, error) {
 	var u = domain.User{}
-	err := repo.db.GetContext(ctx, &u, queryGetUSer, userEmail)
+	err := repo.db.GetContext(ctx, &u, queryGetUserByEmail, userEmail)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, application.UserNotFound
 		}
 		return nil, application.InternalServerError
 	}
+
 	return &u, nil
 }
 

@@ -84,7 +84,7 @@ func (userService *UserService) RegisterUser(ctx context.Context, name, email, p
 	if err != nil && !errors.Is(err, UserNotFound) {
 		return err
 	}
-	fmt.Println(user)
+
 	if user != nil {
 		return UserAlreadyExist
 	}
