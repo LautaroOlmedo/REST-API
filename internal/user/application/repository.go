@@ -21,7 +21,10 @@ var (
 //
 //go:generate mockery --name=Service --output=application --inpackage
 type Service interface {
-	//GetAll() (map[int]*model.User, error)
+	GetAll(ctx context.Context) (map[int]struct {
+		Name  string
+		Email string
+	}, error)
 	GetByID(ctx context.Context, id int) (*model.User, error)
 	RegisterUser(ctx context.Context, name, email, password string) error
 	LoginUser(ctx context.Context, email, password string) (*model.User, error)

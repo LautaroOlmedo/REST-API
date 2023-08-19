@@ -4,14 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/jmoiron/sqlx"
 	"rest-api/internal/user/application"
 	"rest-api/internal/user/domain"
 )
 
 const (
+	queryListUsers = `
+         SELECT * FROM users;`
 	queryInsertUser = `
          INSERT INTO users (name, email, password)
          VALUES (?, ?, ?);`
@@ -33,28 +35,15 @@ func NewMariaDBRepository(db *sqlx.DB) *MariaDBRepository {
 	}
 }
 
-//func (repo *MariaDBRepository) GetAllUsers(ctx context.Context) (map[int]domain.User, error) {
-//	resp, err := repo.db.QueryContext(ctx, queryGetAllUsers)
-//	if err != nil {
-//		return nil, domain.UserNotFound
-//	}
-//
-//	users := make(map[int]domain.User)
-//
-//	for resp.Next() {
-//		u := domain.User{}
-//
-//		err := resp.Scan(&u.ID, &u.Name, &u.Email, &u.Password)
-//		if err != nil {
-//			return nil, domain.UserNotFound
-//		}
-//		users[u.ID] = u
-//	}
-//	if len(users) == 0 {
-//		return nil, domain.UserNotFound
-//	}
-//	return users, nil
-//}
+func (repo *MariaDBRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
+	var users []domain.User
+	err := repo.db.SelectContext(ctx, &users, queryListUsers)
+	if err != nil {
+		return nil, application.InternalServerError
+	}
+	fmt.Println("USERS IN MARIA DB REPOSITORY", users)
+	return users, nil
+}
 
 func (repo *MariaDBRepository) GetUserByID(ctx context.Context, userID int) (*domain.User, error) {
 	var u = &domain.User{}

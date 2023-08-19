@@ -8,7 +8,7 @@ import (
 //
 //go:generate mockery --name=Repository --output=domain --inpackage=true
 type Repository interface {
-	//GetAllUsers(ctx context.Context) ([]*User, error)
+	GetAllUsers(ctx context.Context) ([]User, error)
 	GetUserByID(ctx context.Context, userID int) (*User, error)
 	GetUserByEmail(ctx context.Context, userEmail string) (*User, error)
 	CreateUser(ctx context.Context, name, email, password string) error

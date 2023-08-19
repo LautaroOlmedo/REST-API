@@ -18,21 +18,28 @@ func NewUserService(userRepository domain.Repository) *UserService {
 	return &UserService{userRepository: userRepository}
 }
 
-//func (userService *UserService) GetAll(ctx context.Context) (map[int]*model.User, error) {
-//	usersMap := make(map[int]*model.User)
-//	users, err := userService.userRepository.GetAllUsers(ctx)
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//	return nil, nil
-//
-//	for i := 0; i < len(users); i++ {
-//		usersMap[users[i].ID] = &model.User{ID: users[i].ID, Name: users[i].Name, Email: users[i].Email}
-//	}
-//
-//	return usersMap, nil
-//}
+func (userService *UserService) GetAll(ctx context.Context) (map[int]struct {
+	Name  string
+	Email string
+}, error) {
+	usersMap := make(map[int]struct {
+		Name  string
+		Email string
+	})
+	users, err := userService.userRepository.GetAllUsers(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(users); i++ {
+		usersMap[users[i].ID] = struct {
+			Name  string
+			Email string
+		}{Name: users[i].Name, Email: users[i].Email}
+	}
+	return usersMap, nil
+}
 
 func (userService *UserService) GetByID(ctx context.Context, id int) (*model.User, error) {
 	if id < 1 {

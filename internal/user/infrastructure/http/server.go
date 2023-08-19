@@ -25,6 +25,7 @@ func StartServer() {
 	if err != nil {
 		log.Panicf("failed to start database %s", err)
 	}
+
 	switch myConfig.DB.Engine {
 	case "mariadb":
 		mariaDBRepo = mariadb.NewMariaDBRepository(myConnection)

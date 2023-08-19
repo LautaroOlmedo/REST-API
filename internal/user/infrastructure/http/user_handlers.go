@@ -9,14 +9,13 @@ import (
 	"regexp"
 	"rest-api/internal/user/application"
 	"rest-api/internal/user/application/DTOs"
-	"strconv"
-	"strings"
 )
 
 var (
 	listUserRe   = regexp.MustCompile(`^\/users[\/]*$`)
 	getUserRe    = regexp.MustCompile(`^\/users\/(\d+)$`) // ---> /users/123
 	createUserRe = regexp.MustCompile(`^\/users[\/]*$`)
+	updateUserRe = regexp.MustCompile(`^\/users\/(\d+)$`) // ---> /users/123
 )
 
 type userHandler struct {
@@ -24,7 +23,7 @@ type userHandler struct {
 }
 
 func (h *userHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	switch {
 	case r.Method == http.MethodGet && listUserRe.MatchString(r.URL.Path):
 		h.List(w, r)
@@ -36,6 +35,10 @@ func (h *userHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodPost && createUserRe.MatchString(r.URL.Path):
 		h.Create(w, r)
 		return
+
+	case r.Method == http.MethodPut && updateUserRe.MatchString(r.URL.Path):
+		h.Update(w, r)
+		return
 	default:
 		http.NotFound(w, r)
 		return
@@ -44,6 +47,29 @@ func (h *userHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) List(w http.ResponseWriter, r *http.Request) {
+	myContext := context.Background()
+	users, err := h.userService.GetAll(myContext)
+
+	if err != nil {
+		internalServerError(w, r)
+		return
+	}
+	// Serialize the user map in JSON
+	usersJSON, jsonErr := json.Marshal(users)
+	if jsonErr != nil {
+		internalServerError(w, r)
+		return
+	}
+
+	// Configures the response headers
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Send the JSON response to the client
+	_, _ = w.Write(usersJSON)
+}
+
+func (h *userHandler) Get(w http.ResponseWriter, r *http.Request) {
 	jsonBytes, err := json.Marshal("Hello world!!")
 
 	if err != nil {
@@ -52,10 +78,7 @@ func (h *userHandler) List(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBytes)
 
-}
-
-func (h *userHandler) Get(w http.ResponseWriter, r *http.Request) {
-	myContext := context.Background()
+	/*myContext := context.Background()
 	matches := getUserRe.FindStringSubmatch(r.URL.Path)
 	if len(matches) < 2 {
 		http.NotFound(w, r)
@@ -81,7 +104,7 @@ func (h *userHandler) Get(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Println(*user)
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)*/
 }
 
 func (h *userHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -111,6 +134,16 @@ func (h *userHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *userHandler) Update(w http.ResponseWriter, r *http.Request) {
+	jsonBytes, err := json.Marshal("Hello world from update user!!")
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonBytes)
 }
 
 func userNotFound(w http.ResponseWriter, r *http.Request) {

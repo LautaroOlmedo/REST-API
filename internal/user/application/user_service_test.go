@@ -13,8 +13,8 @@ var userRepo *domain.MockRepository
 
 func TestMain(m *testing.M) {
 	userRepo = &domain.MockRepository{}
-	userRepo.On("GetUserByEmail", mock.Anything, "lautaroolmedo77@gmail.com").Return(nil, nil)
 	userRepo.On("GetUserByEmail", mock.Anything, "javierMiner@gmail.com").Return(&domain.User{Email: "javierMiner@gmail.com"}, nil)
+	userRepo.On("GetUserByEmail", mock.Anything, "lautaroolmedo77@gmail.com").Return(nil, nil)
 	userRepo.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	userRepo.On("GetUserByID", mock.Anything, 1).Return(&domain.User{ID: 1}, nil)
